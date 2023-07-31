@@ -17,9 +17,9 @@ Initial specifications for the adder will be:
   * 1 D type latch to store the carry bit/flag
   * 8 bit word
 
-This specification will form a 1 bit full binary adder which will perform calculation in series, and in simulation would look like this: ![fba](/blog/assets/imgs/8-bit-cpu/full-binary-adder.png)
+This specification will form a 1 bit full binary adder which will perform calculation in series, and in simulation would look like this: ![fba](/assets/imgs/8-bit-cpu/full-binary-adder.png)
 
-And an example to show that this does work: ![fba example](/blog/assets/imgs/8-bit-cpu/full-binary-adder-example.png)
+And an example to show that this does work: ![fba example](/assets/imgs/8-bit-cpu/full-binary-adder-example.png)
 
 ### Addition of logic
 
@@ -38,7 +38,7 @@ A full binary adder can be expressed with 2 logic equations, one for the sum rep
 
 If we focus on the rows where `Cin` is set to 0, we find that the only operation performed by the logic gates is an `and` between `A` and `B`, which can be verified by simplifying the expression for `Cout`. Hence we can conclude that to gain the `and` capability we need to set the carry line low, and select for the `Cout` output to be read into the bit shift register which requires modification to the original circuit. Also of note, when `Cin` is set to 1 the output acts as an `or`.
 
-To simplify, the sum bit circuitry will be removed to focus on adding functionality to the carry. During normal operation the carry bit needs to be fed back into the circuit, but when logic functionality is chosen the carry needs to be excluded. Blocking the signal will involve placing an `and` gate at the feedback from the carry, meaning the carry will be active on high and `and`/`or` on low. To inject the custom bit we can insert an `or` gate afterwards (which will be known as logic select or in this example `or`/`and` enable). This does introduce the issue of `or` existing with a don't care bit since the logic select will override the carry bit not matter if the carry line is enabled or not, but this will be solved later. The circuit is implemented as follows: ![fba and or](/blog/assets/imgs/8-bit-cpu/full-binary-adder-and-or.png)
+To simplify, the sum bit circuitry will be removed to focus on adding functionality to the carry. During normal operation the carry bit needs to be fed back into the circuit, but when logic functionality is chosen the carry needs to be excluded. Blocking the signal will involve placing an `and` gate at the feedback from the carry, meaning the carry will be active on high and `and`/`or` on low. To inject the custom bit we can insert an `or` gate afterwards (which will be known as logic select or in this example `or`/`and` enable). This does introduce the issue of `or` existing with a don't care bit since the logic select will override the carry bit not matter if the carry line is enabled or not, but this will be solved later. The circuit is implemented as follows: ![fba and or](/assets/imgs/8-bit-cpu/full-binary-adder-and-or.png)
 
 Now it is time to focus on the sum bit, which can be expressed by `A xor B xor Cin`. This quite clearly shows that an `xor` operation is possible, so at this point it may be worth discussing `not`. While we may not have this gate explicitly present, we can still create it. When looking at the truth table for `xor` it is evident that if one input is constantly set to 1, the gate inverts the other. Since we can already manipulate one of these inputs, namely the carry line, we just need to ensure one of the inputs `A` or `B` stays set to 0 to not intefere with operation. To control this, what was done for the other logic control can be applied here, where register B is cut off from input using an `and` gate while the carry utilises the control from the previously added functionality. This would require a seperate control bit for register B, so I tried to simplify this since `not` cannot occur during an `xor` and vice versa by splitting the logic select line and placing an inverter feeding into the B register enable, but this interfered with the previously added logic (don't worry if that didn't make sense, something I tried just didn't work), so a fix for this was found later. For now the logic table for these functions looks like this:
 
@@ -48,7 +48,7 @@ Now it is time to focus on the sum bit, which can be expressed by `A xor B xor C
 |         1         |         0         |      Carry     |       Sum      |
 |         X         |         1         |       OR       |       NOT      |
 
-As shown, `or` and `not` share a don't care state. We can infact exploit this to gain the register B cutoff that was mentioned previously by differentiating between the two functions, so if we have the logic switch high and, for example, the carry enable switch high we want register B to be disabled, but in any other case of the two we want register B to be enabled. This logic is equivalent to a `nand` gate so we introduce it for control, and realistically we cannot get any simpler than introducing 1 extra gate. ![fba not xor](/blog/assets/imgs/8-bit-cpu/full-binary-adder-not-xor.png) If the opposite case were to be explored, we would need the output to be disabled when the logic switch is high and carry enable is low, meaning this input would need inverting introducing an extra gate ontop of the required `nand` gate. Thanks to some aditional testing it also became evident that this had the unintended side effect of creating an `nxor` and buffer function, writing the input in register A to the accumulator.
+As shown, `or` and `not` share a don't care state. We can infact exploit this to gain the register B cutoff that was mentioned previously by differentiating between the two functions, so if we have the logic switch high and, for example, the carry enable switch high we want register B to be disabled, but in any other case of the two we want register B to be enabled. This logic is equivalent to a `nand` gate so we introduce it for control, and realistically we cannot get any simpler than introducing 1 extra gate. ![fba not xor](/assets/imgs/8-bit-cpu/full-binary-adder-not-xor.png) If the opposite case were to be explored, we would need the output to be disabled when the logic switch is high and carry enable is low, meaning this input would need inverting introducing an extra gate ontop of the required `nand` gate. Thanks to some aditional testing it also became evident that this had the unintended side effect of creating an `nxor` and buffer function, writing the input in register A to the accumulator.
 
 |   Carry Enable    |   Logic Select    |   Function 1   |   Function 2   |
 | :---------------: | :---------------: | :------------: | :------------: |
@@ -70,7 +70,7 @@ This would complete the exploration of potential functions within the ALU, howev
 |          1          |         1         |         0         |     Carry    |
 |          1          |         1         |         1         |     Buffer   |
 
-![fba final](/blog/assets/imgs/8-bit-cpu/full-binary-adder-final.png)
+![fba final](/assets/imgs/8-bit-cpu/full-binary-adder-final.png)
 
 The circuit does become somewhat larger than a pure full binary adder, however it was possible to add an aditional 6 functions by using 8 more gates which is not all that much. Another way this implementation could have been approached is using a corresponding logic gate for a given function, with its output tied to an input on a multiplexer, which would add an extra gate for each of the 5 logic operations and introduce a whole new component entirely, though simplify implementation greatly.
 
