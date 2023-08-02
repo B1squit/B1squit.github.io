@@ -48,12 +48,12 @@ Now it is time to focus on the sum bit, which can be expressed by `A xor B xor C
 |         1         |         0         |      Carry     |       Sum      |
 |         X         |         1         |       OR       |       NOT      |
 
-As shown, `or` and `not` share a don't care state. We can infact exploit this to gain the register B cutoff that was mentioned previously by differentiating between the two functions, so if we have the logic switch high and, for example, the carry enable switch high we want register B to be disabled, but in any other case of the two we want register B to be enabled. This logic is equivalent to a `nand` gate so we introduce it for control, and realistically we cannot get any simpler than introducing 1 extra gate. ![fba not xor](/assets/imgs/8-bit-cpu/full-binary-adder-not-xor.png) If the opposite case were to be explored, we would need the output to be disabled when the logic switch is high and carry enable is low, meaning this input would need inverting introducing an extra gate ontop of the required `nand` gate. Thanks to some aditional testing it also became evident that this had the unintended side effect of creating an `nxor` and buffer function, writing the input in register A to the accumulator.
+As shown, `or` and `not` share a don't care state. We can infact exploit this to gain the register B cutoff that was mentioned previously by differentiating between the two functions, so if we have the logic switch high and, for example, the carry enable switch high we want register B to be disabled, but in any other case of the two we want register B to be enabled. This logic is equivalent to a `nand` gate so we introduce it for control, and realistically we cannot get any simpler than introducing 1 extra gate. ![fba not xor](/assets/imgs/8-bit-cpu/full-binary-adder-not-xor.png) If the opposite case were to be explored, we would need the output to be disabled when the logic switch is high and carry enable is low, meaning this input would need inverting introducing an extra gate ontop of the required `nand` gate. Thanks to some aditional testing it also became evident that this had the unintended side effect of creating an `xnor` and buffer function, writing the input in register A to the accumulator.
 
 |   Carry Enable    |   Logic Select    |   Function 1   |   Function 2   |
 | :---------------: | :---------------: | :------------: | :------------: |
 |         0         |         0         |       AND      |       XOR      |
-|         0         |         1         |       OR       |       NXOR     |
+|         0         |         1         |       OR       |       XNOR     |
 |         1         |         0         |      Carry     |       Sum      |
 |         1         |         1         |      Buffer    |       NOT      |
 
@@ -62,7 +62,7 @@ This would complete the exploration of potential functions within the ALU, howev
 |   Function Enable   |   Carry Enable    |   Logic Select    |   Function   |
 | :-----------------: | :---------------: | :---------------: | :----------: |
 |          0          |         0         |         0         |      XOR     |
-|          0          |         0         |         1         |      NXOR    |
+|          0          |         0         |         1         |      XNOR    |
 |          0          |         1         |         0         |      Sum     |
 |          0          |         1         |         1         |      NOT     |
 |          1          |         0         |         0         |      AND     |
