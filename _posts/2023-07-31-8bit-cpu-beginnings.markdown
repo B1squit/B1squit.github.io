@@ -4,7 +4,7 @@ title: "Logic Operations with a Full Binary Adder"
 date: 2023-07-31 22:30 +0100
 categorys: CPU
 ---
-Before fully attempting to create an 8 bit CPU, I have decided to investigate the title of this post. The question is why do this when I could implement all the logic individually for the ALU using seperate components.
+Before fully attempting to create a serial 8 bit CPU, I have decided to investigate the title of this post. The question is why do this when I could implement all the logic individually for the ALU using seperate components.
 
 The primary motivation behind all this is to investigate whether this utilises less logic gates than seperately implementing each desired function separately, since as of writing this post I am in possession of a limited number of 74 series ICs. If this does lead to a decrease in component count, this could also give rise to the question of whether this reduced parts count consumes less power. Nevertheless, to begin with a full binary adder needs to be implemented for which I will be using Logisim-Evolution to simulate it, though I do plan on learning VHDL soon after this and reimplementing it. 
 
